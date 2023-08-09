@@ -1,17 +1,26 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
-import { UserRoles } from 'src/users/users.schema';
-import { RefreshTokenGuard } from 'src/guards/refreshToken.guard';
-import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { UserRoles } from '../users/users.schema';
+import { RefreshTokenGuard } from '../guards/refreshToken.guard';
+import { AccessTokenGuard } from '../guards/accessToken.guard';
 
 const authResponse = {
   status: 200,
   schema: {
     properties: {
+      user: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          username: { type: 'string' },
+          displayName: { type: 'string' },
+          role: { type: 'string' },
+        },
+      },
       accessToken: { type: 'string' },
       refreshToken: { type: 'string' },
     },

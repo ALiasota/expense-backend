@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { config } from 'dotenv';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { AuthDto } from './dto/auth.dto';
@@ -33,13 +33,21 @@ export class AuthService {
     }
 
     const hash = await this.hashData(createUserDto.password);
-    const newUser = await this.usersService.createUser({
+    const user = await this.usersService.createUser({
       ...createUserDto,
       password: hash,
     });
-    const tokens = await this.getTokens(newUser._id, newUser.username);
-    await this.updateRefreshToken(newUser._id, tokens.refreshToken);
-    return tokens;
+    const tokens = await this.getTokens(user._id, user.username);
+    await this.updateRefreshToken(user._id, tokens.refreshToken);
+    return {
+      user: {
+        id: user._id,
+        username: user.username,
+        displayName: user.displayName,
+        role: user.role,
+      },
+      ...tokens,
+    };
   }
 
   async signIn(data: AuthDto) {
@@ -50,7 +58,15 @@ export class AuthService {
       throw new BadRequestException('Password is incorrect');
     const tokens = await this.getTokens(user._id, user.username);
     await this.updateRefreshToken(user._id, tokens.refreshToken);
-    return tokens;
+    return {
+      user: {
+        id: user._id,
+        username: user.username,
+        displayName: user.displayName,
+        role: user.role,
+      },
+      ...tokens,
+    };
   }
 
   async logout(userId: string) {
@@ -109,6 +125,14 @@ export class AuthService {
     if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
     const tokens = await this.getTokens(user.id, user.username);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
-    return tokens;
+    return {
+      user: {
+        id: user._id,
+        username: user.username,
+        displayName: user.displayName,
+        role: user.role,
+      },
+      ...tokens,
+    };
   }
 }
