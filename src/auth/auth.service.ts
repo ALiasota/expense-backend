@@ -6,7 +6,7 @@ import {
 import { config } from 'dotenv';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
-import * as argon2 from 'argon2';
+import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { AuthDto } from './dto/auth.dto';
 import { UserRoles } from 'src/users/users.schema';
@@ -24,7 +24,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signUp(createUserDto: CreateUserDtoWithRole): Promise<any> {
+  async signUp(createUserDto: CreateUserDtoWithRole) {
     const userExists = await this.usersService.getUserByName(
       createUserDto.username,
     );
@@ -53,7 +53,7 @@ export class AuthService {
   async signIn(data: AuthDto) {
     const user = await this.usersService.getUserByName(data.username);
     if (!user) throw new BadRequestException('User does not exist');
-    const passwordMatches = await argon2.verify(user.password, data.password);
+    const passwordMatches = await bcrypt.compare(data.password, user.password);
     if (!passwordMatches)
       throw new BadRequestException('Password is incorrect');
     const tokens = await this.getTokens(user._id, user.username);
@@ -70,15 +70,19 @@ export class AuthService {
   }
 
   async logout(userId: string) {
-    return this.usersService.updateUser(userId, { refreshToken: null });
+    const user = await this.usersService.updateUser(userId, {
+      refreshToken: null,
+    });
+    if (!user) throw new BadRequestException('Something went wrong');
+    return user;
   }
 
-  hashData(data: string) {
-    return argon2.hash(data);
+  async hashData(data: string) {
+    return await bcrypt.hash(data, 5);
   }
 
   async updateRefreshToken(userId: string, refreshToken: string) {
-    const hashedRefreshToken = await this.hashData(refreshToken);
+    const hashedRefreshToken: string = await this.hashData(refreshToken);
     await this.usersService.updateUser(userId, {
       refreshToken: hashedRefreshToken,
     });
@@ -118,9 +122,9 @@ export class AuthService {
     const user = await this.usersService.getUserById(userId);
     if (!user || !user.refreshToken)
       throw new ForbiddenException('Access Denied');
-    const refreshTokenMatches = await argon2.verify(
-      user.refreshToken,
+    const refreshTokenMatches = await bcrypt.compare(
       refreshToken,
+      user.refreshToken,
     );
     if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
     const tokens = await this.getTokens(user.id, user.username);

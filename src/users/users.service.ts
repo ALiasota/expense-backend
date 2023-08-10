@@ -11,8 +11,8 @@ export class UsersService {
   ) {}
 
   async createUser(dto: CreateUserDto) {
-    const user = new this.userModel(dto);
-    return user.save();
+    const user = await this.userModel.create(dto);
+    return user;
   }
 
   async getUserByName(username: string) {
@@ -25,16 +25,11 @@ export class UsersService {
     return user;
   }
 
-  async getAllUsers() {
-    const users = await this.userModel.find({});
-    return users;
-  }
-
   async updateUser(id: string, data: Partial<User>) {
-    return this.userModel.findByIdAndUpdate(id, data, { new: true }).exec();
+    return this.userModel.findByIdAndUpdate(id, data, { new: true });
   }
 
   async removeUser(id: string) {
-    return this.userModel.findByIdAndDelete(id).exec();
+    return this.userModel.findByIdAndDelete(id);
   }
 }

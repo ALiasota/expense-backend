@@ -14,14 +14,14 @@ export class User extends Document {
   username: string;
 
   @ApiProperty({ example: '1', description: 'username' })
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   displayName: string;
 
   @ApiProperty({ example: 'ADMIN', description: 'role' })
   @Prop({ required: true, enum: UserRoles })
   role: UserRoles;
 
-  @ApiProperty({ example: '*****', description: 'refresh token' })
+  @ApiProperty({ example: 'password', description: 'refresh token' })
   @Prop({ required: false })
   refreshToken: string;
 
