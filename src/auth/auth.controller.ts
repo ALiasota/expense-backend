@@ -15,8 +15,8 @@ const authResponse = {
       user: {
         type: 'object',
         properties: {
-          id: { type: 'string' },
           username: { type: 'string' },
+          id: { type: 'string' },
           displayName: { type: 'string' },
           role: { type: 'string' },
         },
