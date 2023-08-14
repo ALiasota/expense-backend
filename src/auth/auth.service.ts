@@ -10,6 +10,7 @@ import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { AuthDto } from './dto/auth.dto';
 import { UserRoles } from 'src/users/users.schema';
+import { CategoriesService } from '../categories/categories.service';
 
 config();
 
@@ -21,6 +22,7 @@ interface CreateUserDtoWithRole extends CreateUserDto {
 export class AuthService {
   constructor(
     private usersService: UsersService,
+    private categoriesService: CategoriesService,
     private jwtService: JwtService,
   ) {}
 
@@ -39,6 +41,7 @@ export class AuthService {
     });
     const tokens = await this.getTokens(user._id, user.username);
     await this.updateRefreshToken(user._id, tokens.refreshToken);
+    await this.categoriesService.createDefaultCategories(user._id);
     return {
       user: {
         id: user._id,

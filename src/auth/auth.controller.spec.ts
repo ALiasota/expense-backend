@@ -49,7 +49,7 @@ describe('AuthController', () => {
       };
     }),
     logout: jest.fn((userId) => {
-      console.log(userId);
+      return userId;
     }),
   };
   beforeEach(async () => {

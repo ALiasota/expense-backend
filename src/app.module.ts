@@ -3,6 +3,7 @@ import { config } from 'dotenv';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { CategoriesModule } from './categories/categories.module';
 
 config();
 
@@ -13,6 +14,7 @@ config();
     MongooseModule.forRoot(process.env.MANGO_URL),
     UsersModule,
     AuthModule,
+    CategoriesModule,
   ],
 })
 export class AppModule {}

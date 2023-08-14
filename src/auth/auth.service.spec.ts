@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { UserRoles } from '../users/users.schema';
+import { CategoriesService } from '../categories/categories.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -11,12 +12,19 @@ describe('AuthService', () => {
     createUser: jest.fn(),
     updateUser: jest.fn(),
   };
+
+  const mockCategoriesService = {
+    createDefaultCategories: jest.fn(),
+  };
+
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [AuthService, JwtService, UsersService],
+      providers: [AuthService, JwtService, UsersService, CategoriesService],
     })
       .overrideProvider(UsersService)
       .useValue(mockUserService)
+      .overrideProvider(CategoriesService)
+      .useValue(mockCategoriesService)
       .compile();
     authService = moduleRef.get<AuthService>(AuthService);
   });
