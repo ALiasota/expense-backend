@@ -2,10 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriesService } from './categories.service';
 import { Category } from './categories.schema';
 import { getModelToken } from '@nestjs/mongoose';
+import { TransactionsService } from '../transactions/transactions.service';
 
 describe('CategoriesService', () => {
   let service: CategoriesService;
   let categoryModel;
+  let mockTransactionsService;
 
   beforeEach(async () => {
     categoryModel = {
@@ -13,8 +15,12 @@ describe('CategoriesService', () => {
       insertMany: jest.fn(),
       findById: jest.fn(),
       find: jest.fn(),
+      findOne: jest.fn(),
       findByIdAndUpdate: jest.fn(),
       findByIdAndDelete: jest.fn(),
+    };
+    mockTransactionsService = {
+      updateUserTransactionsByCategoryId: jest.fn(),
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -23,8 +29,12 @@ describe('CategoriesService', () => {
           provide: getModelToken(Category.name),
           useValue: categoryModel,
         },
+        TransactionsService,
       ],
-    }).compile();
+    })
+      .overrideProvider(TransactionsService)
+      .useValue(mockTransactionsService)
+      .compile();
 
     service = module.get<CategoriesService>(CategoriesService);
   });
@@ -222,7 +232,7 @@ describe('CategoriesService', () => {
     expect(categoryModel.findById).toHaveBeenCalledWith(id);
   });
 
-  it('should change remove category', async () => {
+  it('should remove category', async () => {
     const id = '609c1c211c0d6e001c14e24a';
     const deletedCategory = {
       id,

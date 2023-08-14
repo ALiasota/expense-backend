@@ -4,12 +4,12 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { config } from 'dotenv';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { AuthDto } from './dto/auth.dto';
-import { UserRoles } from 'src/users/users.schema';
+import { UserRoles } from '../users/users.schema';
 import { CategoriesService } from '../categories/categories.service';
 
 config();
@@ -39,7 +39,7 @@ export class AuthService {
       ...createUserDto,
       password: hash,
     });
-    const tokens = await this.getTokens(user._id, user.username);
+    const tokens = await this.getTokens(user._id, user.username, user.role);
     await this.updateRefreshToken(user._id, tokens.refreshToken);
     await this.categoriesService.createDefaultCategories(user._id);
     return {
@@ -59,7 +59,7 @@ export class AuthService {
     const passwordMatches = await bcrypt.compare(data.password, user.password);
     if (!passwordMatches)
       throw new BadRequestException('Password is incorrect');
-    const tokens = await this.getTokens(user._id, user.username);
+    const tokens = await this.getTokens(user._id, user.username, user.role);
     await this.updateRefreshToken(user._id, tokens.refreshToken);
     return {
       user: {
@@ -91,12 +91,13 @@ export class AuthService {
     });
   }
 
-  async getTokens(userId: string, username: string) {
+  async getTokens(userId: string, username: string, role: UserRoles) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
           username,
+          role,
         },
         {
           secret: process.env.JWT_ACCESS_SECRET,
@@ -130,7 +131,7 @@ export class AuthService {
       user.refreshToken,
     );
     if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
-    const tokens = await this.getTokens(user.id, user.username);
+    const tokens = await this.getTokens(user.id, user.username, user.role);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return {
       user: {
@@ -140,6 +141,19 @@ export class AuthService {
         role: user.role,
       },
       ...tokens,
+    };
+  }
+
+  async setAdmin(userId: string) {
+    const user = await this.usersService.updateUser(userId, {
+      role: UserRoles.ADMIN,
+    });
+    if (!user) throw new BadRequestException('Something went wrong');
+    return {
+      id: user._id,
+      username: user.username,
+      displayName: user.displayName,
+      role: user.role,
     };
   }
 }

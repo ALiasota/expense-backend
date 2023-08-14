@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserRoles } from '../users/users.schema';
+import { JwtService } from '@nestjs/jwt';
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -51,11 +52,21 @@ describe('AuthController', () => {
     logout: jest.fn((userId) => {
       return userId;
     }),
+    setAdmin: jest.fn((userId) => {
+      return {
+        user: {
+          id: userId,
+          username: 'username',
+          displayName: 'displayName',
+          role: 'ADMIN',
+        },
+      };
+    }),
   };
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [AuthService],
+      providers: [AuthService, JwtService],
     })
       .overrideProvider(AuthService)
       .useValue(mockAuthService)
@@ -136,5 +147,19 @@ describe('AuthController', () => {
       },
     };
     expect(authController.logout(request)).toEqual(expect.any(String));
+  });
+
+  it('should return user with role ADMIN', async () => {
+    const id = 'dsvfdsfdsfdsf';
+    const result = await authController.setAdmin(id);
+    expect(result).toEqual({
+      user: {
+        id,
+        username: expect.any(String),
+        displayName: expect.any(String),
+        role: 'ADMIN',
+      },
+    });
+    expect(mockAuthService.setAdmin).toHaveBeenCalledWith(id);
   });
 });

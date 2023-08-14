@@ -28,8 +28,4 @@ export class UsersService {
   async updateUser(id: string, data: Partial<User>) {
     return this.userModel.findByIdAndUpdate(id, data, { new: true });
   }
-
-  async removeUser(id: string) {
-    return this.userModel.findByIdAndDelete(id);
-  }
 }
