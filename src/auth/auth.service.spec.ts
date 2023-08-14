@@ -141,13 +141,14 @@ describe('AuthService', () => {
   it('should return tokens', async () => {
     const userId = 'jhjhghjghgj';
     const username = 'username';
+    const role = UserRoles.USER;
 
     const mockTokens = {
       accessToken: expect.any(String),
       refreshToken: expect.any(String),
     };
 
-    const result = await authService.getTokens(userId, username);
+    const result = await authService.getTokens(userId, username, role);
 
     expect(result).toEqual(mockTokens);
   });
@@ -155,13 +156,14 @@ describe('AuthService', () => {
   it('should refresh tokens', async () => {
     const userId = 'jhjhghjghgj';
     const refreshToken = '435fgfdgsdfgsdfgfsdg';
+    const role = UserRoles.USER;
 
     const mockTokens = {
       accessToken: expect.any(String),
       refreshToken: expect.any(String),
     };
 
-    const result = await authService.getTokens(userId, refreshToken);
+    const result = await authService.getTokens(userId, refreshToken, role);
 
     expect(result).toEqual(mockTokens);
   });

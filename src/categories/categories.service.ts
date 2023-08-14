@@ -3,11 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Category } from './categories.schema';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { TransactionsService } from '../transactions/transactions.service';
 
 @Injectable()
 export class CategoriesService {
   constructor(
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
+    private transactionsService: TransactionsService,
   ) {}
 
   async createCategory(userId: string, dto: CreateCategoryDto) {
@@ -58,6 +60,12 @@ export class CategoriesService {
     if (!category) throw new BadRequestException('Category not found');
     else if (category.label === 'Інше')
       throw new BadRequestException("You can't remove this category");
+    const categoryOther = await this.categoryModel.findOne({ label: 'Інше' });
+    if (categoryOther)
+      await this.transactionsService.updateUserTransactionsByCategoryId(
+        category._id,
+        categoryOther._id,
+      );
     const deletedCategory = await this.categoryModel.findByIdAndDelete(id);
     return { id: deletedCategory._id, label: deletedCategory.label };
   }

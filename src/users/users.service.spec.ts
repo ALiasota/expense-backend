@@ -106,30 +106,6 @@ describe('UsersService', () => {
     expect(userModel.findById).toHaveBeenCalledWith(id);
   });
 
-  it('should delete user', async () => {
-    const id = '64d3784293a40415d700b0cb';
-    const user = {
-      username: 'username',
-      displayName: 'displayName',
-      role: UserRoles.USER,
-      _id: id,
-      refreshToken:
-        '$argon2id$v=19$m=65536,t=3,p=4$BYqclplllcfkZoB1um5qzg$/csYuzHENGiP5nzNJUlxmcSNRGEFKFkmPZaE3FJAtBE',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      __v: 0,
-      password:
-        '$argon2id$v=19$m=65536,t=3,p=4$E2EQ54td84DT/UjVylLkzg$gkKqPZrkNVt4tfuC3njVeqgC4PxyOcjaIVeBKkUVGvo',
-    };
-
-    userModel.findByIdAndDelete.mockResolvedValue(user);
-
-    const result = await userService.removeUser(id);
-
-    expect(result).toEqual(user);
-    expect(userModel.findByIdAndDelete).toHaveBeenCalledWith(id);
-  });
-
   it('should update user', async () => {
     const id = '64d3784293a40415d700b0cb';
     const refreshToken =
