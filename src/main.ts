@@ -2,10 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from './pipes/validation.pipe';
+import { ConfigService } from '@nestjs/config';
 
 async function start() {
-  const PORT = process.env.PORT || 5001;
   const app = await NestFactory.create(AppModule);
+  const configEnv = app.get(ConfigService);
+  const PORT = configEnv.get<number>('PORT') || 5001;
   app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()

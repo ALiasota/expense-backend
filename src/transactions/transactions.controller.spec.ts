@@ -3,6 +3,7 @@ import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 describe('TransactionsController', () => {
   let controller: TransactionsController;
@@ -15,7 +16,7 @@ describe('TransactionsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TransactionsController],
-      providers: [TransactionsService, JwtService],
+      providers: [TransactionsService, JwtService, ConfigService],
     })
       .overrideProvider(TransactionsService)
       .useValue(mockTransactionsService)
