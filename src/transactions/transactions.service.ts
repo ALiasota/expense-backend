@@ -1,20 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { Transaction } from './transactions.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-// import { CategoriesService } from '../categories/categories.service';
+import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class TransactionsService {
   constructor(
     @InjectModel(Transaction.name)
-    private readonly transactionModel: Model<Transaction>, // private categoriesService: CategoriesService,
+    private readonly transactionModel: Model<Transaction>,
+    @Inject(forwardRef(() => CategoriesService))
+    private categoriesService: CategoriesService,
   ) {}
 
   async createTransaction(userId: string, dto: CreateTransactionDto) {
-    // const category = await this.categoriesService.getCategoryById(dto.category);
-    // if (!category) throw new BadRequestException('Category not found');
+    const category = await this.categoriesService.getCategoryById(dto.category);
+    if (!category) throw new BadRequestException('Category not found');
     const transaction = await (
       await this.transactionModel.create({
         user: userId,

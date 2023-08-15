@@ -12,7 +12,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../guards/accessToken.guard';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { Roles } from '../auth/roles-auth.decorator';
+import { Roles } from '../guards/roles-auth.decorator';
 import { UserRoles } from '../users/users.schema';
 import { RolesGuard } from '../guards/roles.guard';
 

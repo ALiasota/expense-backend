@@ -3,10 +3,14 @@ import { TransactionsService } from './transactions.service';
 import { JwtService } from '@nestjs/jwt';
 import { Transaction } from './transactions.schema';
 import { getModelToken } from '@nestjs/mongoose';
+import { CategoriesService } from '../categories/categories.service';
 
 describe('TransactionsService', () => {
   let service: TransactionsService;
   let transactionModel;
+  const mockedCategoriesService = {
+    getCategoryById: jest.fn(),
+  };
 
   beforeEach(async () => {
     transactionModel = {
@@ -14,16 +18,21 @@ describe('TransactionsService', () => {
       find: jest.fn(),
       updateMany: jest.fn(),
     };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TransactionsService,
+        CategoriesService,
         JwtService,
         {
           provide: getModelToken(Transaction.name),
           useValue: transactionModel,
         },
       ],
-    }).compile();
+    })
+      .overrideProvider(CategoriesService)
+      .useValue(mockedCategoriesService)
+      .compile();
 
     service = module.get<TransactionsService>(TransactionsService);
   });
@@ -53,6 +62,8 @@ describe('TransactionsService', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+
+    mockedCategoriesService.getCategoryById.mockResolvedValue(mockedCategory);
 
     transactionModel.create.mockResolvedValue({
       _id: 'dssssdsdfdv',
