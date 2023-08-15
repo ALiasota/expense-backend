@@ -64,6 +64,24 @@ describe('CategoriesService', () => {
     expect(categoryModel.create).toHaveBeenCalledWith({ label, user: userId });
   });
 
+  it('should return category by id', async () => {
+    const categoryId = 'fdgdfgfdgdfg';
+
+    const createdCategory = {
+      _id: 'dssssdsdfdv',
+      label: 'label',
+      user: 'dfdsfdsafas',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    categoryModel.findById.mockResolvedValue(createdCategory);
+
+    const result = await service.getCategoryById(categoryId);
+    expect(result).toEqual(createdCategory);
+    expect(categoryModel.findById).toHaveBeenCalledWith(categoryId);
+  });
+
   it('should create default categories', async () => {
     const userId = 'fdgdfgfdgdfg';
     const defaultCategories = [

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Category } from './categories.schema';
@@ -9,6 +14,7 @@ import { TransactionsService } from '../transactions/transactions.service';
 export class CategoriesService {
   constructor(
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
+    @Inject(forwardRef(() => TransactionsService))
     private transactionsService: TransactionsService,
   ) {}
 

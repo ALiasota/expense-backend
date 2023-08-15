@@ -15,7 +15,7 @@ import { AuthDto } from './dto/auth.dto';
 import { UserRoles } from '../users/users.schema';
 import { RefreshTokenGuard } from '../guards/refreshToken.guard';
 import { AccessTokenGuard } from '../guards/accessToken.guard';
-import { Roles } from './roles-auth.decorator';
+import { Roles } from '../guards/roles-auth.decorator';
 import { RolesGuard } from '../guards/roles.guard';
 
 const authResponse = {
