@@ -11,5 +11,6 @@ import { CategoriesModule } from 'src/categories/categories.module';
   imports: [UsersModule, CategoriesModule, JwtModule.register({})],
   controllers: [AuthController],
   providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy],
+  exports: [JwtModule],
 })
 export class AuthModule {}

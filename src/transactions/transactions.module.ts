@@ -1,17 +1,17 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { TransactionsController } from './transactions.controller';
-import { UsersModule } from 'src/users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { config } from 'dotenv';
 import { Transaction, TransactionSchema } from './transactions.schema';
 import { JwtModule } from '@nestjs/jwt';
+import { CategoriesModule } from 'src/categories/categories.module';
 
 config();
 
 @Module({
   imports: [
-    UsersModule,
+    forwardRef(() => CategoriesModule),
     JwtModule.register({}),
     MongooseModule.forFeature([
       { name: Transaction.name, schema: TransactionSchema },

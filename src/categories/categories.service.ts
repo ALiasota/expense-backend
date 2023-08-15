@@ -45,6 +45,10 @@ export class CategoriesService {
     return categories;
   }
 
+  async getCategoryById(id: string) {
+    return await this.categoryModel.findById(id);
+  }
+
   async renameCategory(id: string, label: string) {
     const category = await this.categoryModel.findById(id);
     if (!category) throw new BadRequestException('Category not found');
