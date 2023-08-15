@@ -3,7 +3,6 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { config } from 'dotenv';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcryptjs';
@@ -11,8 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthDto } from './dto/auth.dto';
 import { UserRoles } from '../users/users.schema';
 import { CategoriesService } from '../categories/categories.service';
-
-config();
+import { ConfigService } from '@nestjs/config';
 
 interface CreateUserDtoWithRole extends CreateUserDto {
   role: UserRoles;
@@ -24,6 +22,7 @@ export class AuthService {
     private usersService: UsersService,
     private categoriesService: CategoriesService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async signUp(createUserDto: CreateUserDtoWithRole) {
@@ -92,6 +91,10 @@ export class AuthService {
   }
 
   async getTokens(userId: string, username: string, role: UserRoles) {
+    const JWT_ACCESS_SECRET =
+      this.configService.get<string>('JWT_ACCESS_SECRET');
+    const JWT_REFRESH_SECRET =
+      this.configService.get<string>('JWT_REFRESH_SECRET');
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
@@ -100,7 +103,7 @@ export class AuthService {
           role,
         },
         {
-          secret: process.env.JWT_ACCESS_SECRET,
+          secret: JWT_ACCESS_SECRET,
           expiresIn: '15m',
         },
       ),
@@ -110,7 +113,7 @@ export class AuthService {
           username,
         },
         {
-          secret: process.env.JWT_REFRESH_SECRET,
+          secret: JWT_REFRESH_SECRET,
           expiresIn: '7d',
         },
       ),

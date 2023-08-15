@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Transaction } from './transactions.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { CategoriesService } from '../categories/categories.service';
+import { ConfigService } from '@nestjs/config';
 
 describe('TransactionsService', () => {
   let service: TransactionsService;
@@ -23,6 +24,7 @@ describe('TransactionsService', () => {
       providers: [
         TransactionsService,
         CategoriesService,
+        ConfigService,
         JwtService,
         {
           provide: getModelToken(Transaction.name),

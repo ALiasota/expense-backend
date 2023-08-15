@@ -4,22 +4,23 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { config } from 'dotenv';
+import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { UserRoles } from 'src/users/users.schema';
-
-config();
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private readonly reflector: Reflector,
+    private configService: ConfigService,
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
     try {
+      const JWT_ACCESS_SECRET =
+        this.configService.get<string>('JWT_ACCESS_SECRET');
       const requiredRoles = this.reflector.getAllAndOverride<UserRoles[]>(
         'roles',
         [context.getHandler(), context.getClass()],
@@ -41,7 +42,7 @@ export class RolesGuard implements CanActivate {
         });
       }
       const user = this.jwtService.verify(token, {
-        secret: process.env.JWT_ACCESS_SECRET,
+        secret: JWT_ACCESS_SECRET,
       });
 
       if (!user)

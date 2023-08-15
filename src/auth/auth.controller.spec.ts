@@ -3,6 +3,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserRoles } from '../users/users.schema';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -66,7 +67,7 @@ describe('AuthController', () => {
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [AuthService, JwtService],
+      providers: [AuthService, JwtService, ConfigService],
     })
       .overrideProvider(AuthService)
       .useValue(mockAuthService)

@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { UserRoles } from '../users/users.schema';
 import { CategoriesService } from '../categories/categories.service';
+import { ConfigService } from '@nestjs/config';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -17,14 +18,32 @@ describe('AuthService', () => {
     createDefaultCategories: jest.fn(),
   };
 
+  const mockJwtService = {
+    signAsync: jest.fn(),
+  };
+
+  const mockConfigService = {
+    get: jest.fn(),
+  };
+
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [AuthService, JwtService, UsersService, CategoriesService],
+      providers: [
+        AuthService,
+        JwtService,
+        UsersService,
+        CategoriesService,
+        ConfigService,
+      ],
     })
       .overrideProvider(UsersService)
       .useValue(mockUserService)
       .overrideProvider(CategoriesService)
       .useValue(mockCategoriesService)
+      .overrideProvider(ConfigService)
+      .useValue(mockConfigService)
+      .overrideProvider(JwtService)
+      .useValue(mockJwtService)
       .compile();
     authService = moduleRef.get<AuthService>(AuthService);
   });
@@ -65,7 +84,7 @@ describe('AuthService', () => {
       password:
         '$argon2id$v=19$m=65536,t=3,p=4$E2EQ54td84DT/UjVylLkzg$gkKqPZrkNVt4tfuC3njVeqgC4PxyOcjaIVeBKkUVGvo',
     };
-
+    mockJwtService.signAsync.mockResolvedValue('dsfdasfdasfa');
     mockUserService.getUserByName.mockResolvedValue(null);
     mockUserService.createUser.mockResolvedValue(mockUser);
 
@@ -148,6 +167,8 @@ describe('AuthService', () => {
       refreshToken: expect.any(String),
     };
 
+    mockJwtService.signAsync.mockResolvedValue('dsfdasfdasfa');
+
     const result = await authService.getTokens(userId, username, role);
 
     expect(result).toEqual(mockTokens);
@@ -162,6 +183,8 @@ describe('AuthService', () => {
       accessToken: expect.any(String),
       refreshToken: expect.any(String),
     };
+
+    mockJwtService.signAsync.mockResolvedValue('dsfdasfdasfa');
 
     const result = await authService.getTokens(userId, refreshToken, role);
 
