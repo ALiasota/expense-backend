@@ -3,6 +3,7 @@ import { CategoriesService } from './categories.service';
 import { Category } from './categories.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { TransactionsService } from '../transactions/transactions.service';
+import { UserRoles } from '../users/users.schema';
 
 describe('CategoriesService', () => {
   let service: CategoriesService;
@@ -80,6 +81,25 @@ describe('CategoriesService', () => {
     const result = await service.getCategoryById(categoryId);
     expect(result).toEqual(createdCategory);
     expect(categoryModel.findById).toHaveBeenCalledWith(categoryId);
+  });
+
+  it('should return category by user id and label', async () => {
+    const userId = 'fdgdfgfdgdfg';
+    const label = 'Інше';
+
+    const createdCategory = {
+      _id: 'dssssdsdfdv',
+      label: 'label',
+      user: 'dfdsfdsafas',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    categoryModel.findOne.mockResolvedValue(createdCategory);
+
+    const result = await service.getCategoryByNameAndUserId(userId, label);
+    expect(result).toEqual(createdCategory);
+    expect(categoryModel.findOne).toHaveBeenCalledWith({ user: userId, label });
   });
 
   it('should create default categories', async () => {
@@ -232,14 +252,36 @@ describe('CategoriesService', () => {
       id: expect.any(String),
       label,
     };
+    const user = {
+      username: 'username',
+      displayName: 'displayName',
+      role: UserRoles.USER,
+      _id: 'dsfdsfsdfsdf',
+      refreshToken: 'gdfgfdgdf',
+      defaultCategory: 'fdsfdsfsdfsdf',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      __v: 0,
+      password:
+        '$argon2id$v=19$m=65536,t=3,p=4$E2EQ54td84DT/UjVylLkzg$gkKqPZrkNVt4tfuC3njVeqgC4PxyOcjaIVeBKkUVGvo',
+    };
     const existingCategory: any = {
       _id: id,
       label: 'sdcdscsdcvsd',
       user: expect.any(String),
       createdAt: new Date(),
       updatedAt: new Date(),
+      populate: jest.fn(() => ({
+        _id: id,
+        label: 'sdcdscsdcvsd',
+        user,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })),
     };
-    categoryModel.findById.mockResolvedValue(existingCategory);
+    categoryModel.findById = jest.fn().mockReturnValue({
+      populate: jest.fn().mockResolvedValue(existingCategory),
+    });
     const saveMock = jest
       .fn()
       .mockResolvedValue({ ...existingCategory, label });
@@ -256,14 +298,38 @@ describe('CategoriesService', () => {
       id,
       label: expect.any(String),
     };
-    const existingCategory = {
+    const user = {
+      username: 'username',
+      displayName: 'displayName',
+      role: UserRoles.USER,
+      _id: 'dsfdsfsdfsdf',
+      refreshToken: 'gdfgfdgdf',
+      defaultCategory: 'fdsfdsfsdfsdf',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      __v: 0,
+      password:
+        '$argon2id$v=19$m=65536,t=3,p=4$E2EQ54td84DT/UjVylLkzg$gkKqPZrkNVt4tfuC3njVeqgC4PxyOcjaIVeBKkUVGvo',
+    };
+    const existingCategory: any = {
       _id: id,
       label: 'sdcdscsdcvsd',
       user: expect.any(String),
       createdAt: new Date(),
       updatedAt: new Date(),
+      populate: jest.fn(() => ({
+        _id: id,
+        label: 'sdcdscsdcvsd',
+        user,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })),
     };
-    categoryModel.findById.mockResolvedValue(existingCategory);
+
+    categoryModel.findById = jest.fn().mockReturnValue({
+      populate: jest.fn().mockResolvedValue(existingCategory),
+    });
+
     categoryModel.findByIdAndDelete.mockResolvedValue(existingCategory);
 
     const result = await service.removeCategory(id);

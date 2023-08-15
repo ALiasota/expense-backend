@@ -55,10 +55,14 @@ export class CategoriesService {
     return await this.categoryModel.findById(id);
   }
 
+  async getCategoryByNameAndUserId(userId: string, label: string) {
+    return await this.categoryModel.findOne({ user: userId, label });
+  }
+
   async renameCategory(id: string, label: string) {
-    const category = await this.categoryModel.findById(id);
+    const category = await this.categoryModel.findById(id).populate('user');
     if (!category) throw new BadRequestException('Category not found');
-    else if (category.label === 'Інше')
+    else if (String(category._id) === String(category.user.defaultCategory))
       throw new BadRequestException("You can't rename this category");
     category.label = label;
     await category.save();
@@ -66,11 +70,13 @@ export class CategoriesService {
   }
 
   async removeCategory(id: string) {
-    const category = await this.categoryModel.findById(id);
+    const category = await this.categoryModel.findById(id).populate('user');
     if (!category) throw new BadRequestException('Category not found');
-    else if (category.label === 'Інше')
+    else if (String(category._id) === String(category.user.defaultCategory))
       throw new BadRequestException("You can't remove this category");
-    const categoryOther = await this.categoryModel.findOne({ label: 'Інше' });
+    const categoryOther = await this.categoryModel.findById(
+      category.user.defaultCategory,
+    );
     if (categoryOther)
       await this.transactionsService.updateUserTransactionsByCategoryId(
         category._id,

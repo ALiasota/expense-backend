@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import * as mongoose from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
+import { Category } from '../categories/categories.schema';
 
 export enum UserRoles {
   ADMIN = 'ADMIN',
@@ -8,7 +9,7 @@ export enum UserRoles {
 }
 
 @Schema()
-export class User extends Document {
+export class User extends mongoose.Document {
   @ApiProperty({ example: 'hitman', description: 'username' })
   @Prop({ required: true, unique: true })
   username: string;
@@ -28,6 +29,10 @@ export class User extends Document {
   @ApiProperty({ example: '*****', description: 'password' })
   @Prop({ required: true })
   password: string;
+
+  @ApiProperty({ example: 'gdfgdgfgd', description: 'label id' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Category' })
+  defaultCategory: Category;
 
   @ApiProperty({
     example: '2022-09-08T17:39:56.323+00:00',
