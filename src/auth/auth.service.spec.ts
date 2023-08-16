@@ -71,7 +71,7 @@ describe('AuthService', () => {
       refreshToken: expect.any(String),
     };
 
-    const mockUser = {
+    const mockUser: any = {
       username: dto.username,
       displayName: dto.displayName,
       role: UserRoles.USER,
@@ -87,7 +87,14 @@ describe('AuthService', () => {
     mockJwtService.signAsync.mockResolvedValue('dsfdasfdasfa');
     mockUserService.getUserByName.mockResolvedValue(null);
     mockUserService.createUser.mockResolvedValue(mockUser);
+    mockCategoriesService.createDefaultCategories.mockResolvedValue([
+      { id: 'sdasdasd', label: 'Інше' },
+    ]);
 
+    const saveMock = jest
+      .fn()
+      .mockResolvedValue({ ...mockUser, defaultCategory: 'sdasdasd' });
+    mockUser.save = saveMock;
     const result = await authService.signUp(dto);
 
     expect(result).toEqual(mockResponse);
