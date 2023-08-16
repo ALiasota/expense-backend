@@ -40,7 +40,14 @@ export class AuthService {
     });
     const tokens = await this.getTokens(user._id, user.username, user.role);
     await this.updateRefreshToken(user._id, tokens.refreshToken);
-    await this.categoriesService.createDefaultCategories(user._id);
+    const categories = await this.categoriesService.createDefaultCategories(
+      user._id,
+    );
+    const defaultCategory = categories.find((c) => c.label === 'Інше');
+    if (defaultCategory) {
+      user.defaultCategory = defaultCategory.id;
+      await user.save();
+    }
     return {
       user: {
         id: user._id,
