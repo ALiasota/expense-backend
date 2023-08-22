@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wallet
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: wallet-label
+  template:
+    metadata:
+      labels:
+        app: wallet-label
+    spec:
+      containers:
+        - name: wallet-container
+          image: docker.io/lyasotaandriy/wallet:1.0
+          ports:
+            - containerPort: 80

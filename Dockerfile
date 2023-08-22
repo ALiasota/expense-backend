@@ -1,6 +1,6 @@
-FROM node:16-slim
+FROM --platform=linux/amd64 node:18
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY ./package.json ./
 COPY ./yarn.lock ./
@@ -10,7 +10,5 @@ RUN yarn install
 COPY . .
 
 RUN yarn build
-
-EXPOSE 5001
 
 CMD [ "yarn", "start" ]
